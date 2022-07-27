@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,32 +13,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import navipose.components.Navigator
 import theme.XButton
 import ui.ApkScreen
 import ui.LogScreen
 import ui.SettingScreen
+import utils.MainApp
 
 
 @Composable
 @Preview
 fun App(window: ComposeWindow) {
-    var screen by remember {
-        mutableStateOf(Screen.ApkScreen)
-    }
-
-    DesktopMaterialTheme {
+    MaterialTheme {
         Row(modifier = Modifier.background(Color.White)) {
             Column(modifier = Modifier.width(100.dp)) {
                 Image(painter = painterResource("drawable/ic_jetquotes_logo.png"), "")
                 XButton(onClick = {
-                    screen = Screen.ApkScreen
+                    MainApp.navigator.navigate(Screens.ApkScreen)
                 }, isSelect = true, modifier = Modifier.fillMaxWidth()) {
                     Text("安装apk", style = TextStyle(color = Color.White))
                 }
 
                 XButton(
                     onClick = {
-                        screen = Screen.LogScreen
+                        MainApp.navigator.navigate(Screens.LogScreen)
                     }, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
                 ) {
                     Text("日志页面", style = TextStyle(color = Color.White))
@@ -45,7 +44,7 @@ fun App(window: ComposeWindow) {
 
                 XButton(
                     onClick = {
-                        screen = Screen.SettingScreen
+                        MainApp.navigator.navigate(Screens.SettingScreen)
                     },
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                 ) {
@@ -57,19 +56,14 @@ fun App(window: ComposeWindow) {
                 modifier = Modifier.fillMaxSize().background(Color.Cyan, shape = RoundedCornerShape(15.dp))
                     .padding(20.dp)
             ) {
-                when (screen) {
-                    Screen.ApkScreen -> {
-                        ApkScreen(window)
-                    }
-                    Screen.LogScreen -> {
-                        LogScreen()
-                    }
-                    Screen.SettingScreen -> {
-                        SettingScreen()
-                    }
+
+                Navigator(Screens.ApkScreen) {
+                    MainApp.navigator = this
+                    addScreen(Screens.ApkScreen) { ApkScreen(window) }
+                    addScreen(Screens.LogScreen) { LogScreen() }
+                    addScreen(Screens.SettingScreen) { SettingScreen() }
                 }
             }
-
         }
     }
 }

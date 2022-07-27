@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.onFocusEvent
 
 
 @Composable
@@ -24,10 +25,12 @@ fun XButton(
     isSelect: Boolean = false,
     content: @Composable RowScope.() -> Unit
 ) {
+
     val focusRequester = FocusRequester()
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused = interactionSource.collectIsFocusedAsState().value
-    var color = if (isFocused) ButtonColors else ButtonColorsNo
+    val color = if (isFocused) ButtonColors else ButtonColorsNo
+
     Button(
         onClick = {
             focusRequester.requestFocus()

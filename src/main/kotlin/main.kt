@@ -21,6 +21,7 @@ fun main() = application {
         resizable = true,
         icon = painterResource("drawable/ic_jetquotes_logo.png")
     ) {
+
         App(window)
     }
 }

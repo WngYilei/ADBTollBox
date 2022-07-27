@@ -1,10 +1,7 @@
+import navipose.models.IScreen
 
-class Config(str: Any) {
-    val path: String = ""
-}
-
-enum class Screen {
-    ApkScreen,
-    LogScreen,
-    SettingScreen
+sealed class Screens: IScreen {
+    object ApkScreen : Screens()
+    object LogScreen : Screens()
+    object SettingScreen : Screens()
 }
