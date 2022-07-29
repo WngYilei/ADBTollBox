@@ -1,11 +1,16 @@
 package utils
 
 
+import KVUtils
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 import javax.swing.filechooser.FileSystemView
 
+
 object CacheUtils {
+    const val ADB = "ADB"
+    const val IP = "IP"
+    private var map = HashMap<String, Any>()
     lateinit var file: File
 
     fun init() {
@@ -15,23 +20,27 @@ object CacheUtils {
             if (!fileDirectory.exists()) fileDirectory.mkdir()
             file = File("${fileDirectory.path}/cache")
             if (!file.exists()) file.createNewFile()
+
         } catch (e: Exception) {
             println(e)
         }
     }
 
-    fun readAdbPath(): String {
+    fun getConfig(key: String): String {
         val mapper = ObjectMapper()
         return try {
-            mapper.readValue(file, String::class.java)
+            map = mapper.readValue(file, map.javaClass)
+            return map[key] as String
         } catch (e: Exception) {
+            println(e.message)
             ""
         }
     }
 
-
-    fun writeAbdPath(str: String) {
+    fun putConfig(key: String, value: String) {
         val objectMapper = ObjectMapper()
-        objectMapper.writeValue(file, str)
+        map[key] = value
+        objectMapper.writeValue(file, map)
     }
+
 }

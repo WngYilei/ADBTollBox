@@ -23,10 +23,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import bean.DropBoundsBean
 import theme.ButtonColors
 import theme.ButtonColorsNo
+import utils.CacheUtils
 
 import java.awt.datatransfer.DataFlavor
 import java.awt.dnd.DnDConstants
@@ -109,7 +111,7 @@ fun DropBoxPanel(
         }
     }
 
-    fun show(msg:String){
+    fun show(msg: String) {
         val pathList = mutableListOf<String>()
         pathList.add(msg)
         onFileDrop(pathList)
@@ -153,3 +155,44 @@ inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier
     }
 }
 
+@Composable
+fun EditItem(editStart: String = "", lable: String = "", value: String ="", click: (str: String) -> Unit) {
+    var isText by remember { mutableStateOf(true) }
+    var etPath by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(editStart + value) }
+    Box(modifier = Modifier.fillMaxWidth()) {
+        if (isText) {
+            Text(
+                text,
+                modifier = Modifier.padding(top = 26.dp),
+                textAlign = TextAlign.Center
+            )
+        } else {
+            OutlinedTextField(
+                value = etPath,
+                label = { Text(text = lable) },
+                onValueChange = {
+                    etPath = it
+                }
+            )
+        }
+
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp), contentAlignment = Alignment.CenterEnd) {
+            Button(
+                onClick = {
+                    isText = !isText
+                    if (isText && etPath.isNotEmpty()) {
+                        click(etPath)
+                    }
+                    text = editStart + etPath
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = ButtonColors,
+                ),
+            ) {
+                Text(if (isText) "更改" else "确定")
+            }
+        }
+
+    }
+}

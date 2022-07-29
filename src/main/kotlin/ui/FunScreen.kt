@@ -1,26 +1,22 @@
 package ui
 
 import DropBoxPanel
+import EditItem
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -31,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import noRippleClickable
 import showFileSelector
-import theme.ButtonColors
 import theme.FunctionButton
 import theme.Purple200
 import utils.ADBUtils
@@ -85,9 +80,10 @@ fun ApkScreen(window: ComposeWindow) {
                 }
 
                 Row(modifier = Modifier.fillMaxWidth().height(50.dp)) {
+
                     Button(
                         onClick = {
-                            val folder = Array(2) { "/User" }
+                            val folder = Array(2) { "/User/Desktop" }
                             showFileSelector(folder) {
                                 apkPath = it
                             }
@@ -130,6 +126,47 @@ fun ApkScreen(window: ComposeWindow) {
                     }
 
 
+                    Row(modifier = Modifier.padding(start = 10.dp)) {
+                        var ip by remember { mutableStateOf("") }
+                        Button(onClick = {
+                            if (ip.isEmpty()) {
+                                scope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("请先输入IP")
+                                }
+                                return@Button
+                            }
+                            ADBUtils.connectDevices(ip) {
+                                statusList.add(it!!)
+                            }
+                        }) {
+                            Text("连接")
+                        }
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 5.dp, top = 5.dp)
+                                .height(40.dp)
+                                .width(300.dp)
+                                .background(FunctionButton, shape = RoundedCornerShape(5.dp))
+                        ) {
+                            BasicTextField(
+                                value = ip,
+                                onValueChange = {
+                                    ip = it
+                                },
+                                modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp),
+                                decorationBox = @Composable { innerTextField ->
+                                    if (ip.isEmpty())
+                                        Text(text = "请输入IP", color = Color.Gray, style = TextStyle(fontSize = 12.sp))
+                                    innerTextField()
+                                }
+
+                            )
+                        }
+                    }
+
+
+
+
                 }
                 Text("apk 路径：${apkPath}")
                 LazyColumn {
@@ -147,8 +184,7 @@ fun ApkScreen(window: ComposeWindow) {
 
 @Composable
 fun SettingScreen() {
-    var isText by remember { mutableStateOf(true) }
-    var etPath by remember { mutableStateOf("") }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Card(
             modifier = Modifier.height(100.dp).fillMaxWidth(),
@@ -172,39 +208,13 @@ fun SettingScreen() {
             }
         }
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            if (isText) {
-                Text(
-                    "SDK Location:" + CacheUtils.readAdbPath(),
-                    modifier = Modifier.padding(top = 26.dp),
-                    textAlign = TextAlign.Center
-                )
-            } else {
-                OutlinedTextField(
-                    value = etPath,
-                    label = { Text(text = "请输入Android SDK路径") },//这里label为文本框未输入时显示的文本
-                    onValueChange = {
-                        etPath = it
-                    }
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp), contentAlignment = Alignment.CenterEnd) {
-                Button(
-                    onClick = {
-                        isText = !isText
-                        if (isText && etPath.isNotEmpty()) {
-                            CacheUtils.writeAbdPath(etPath)
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = ButtonColors,
-                    ),
-                ) {
-                    Text(if (isText) "更改" else "确定")
-                }
-            }
-
+        EditItem("SDK Location:", "请输入Android SDK路径", CacheUtils.getConfig(CacheUtils.ADB)) {
+            println(it)
+            CacheUtils.putConfig(CacheUtils.ADB, it)
+        }
+        EditItem("设备IP:", "请输入设备根IP", CacheUtils.getConfig(CacheUtils.IP)) {
+            println(it)
+            CacheUtils.putConfig(CacheUtils.IP, it)
         }
 
 

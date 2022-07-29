@@ -1,3 +1,4 @@
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -23,32 +24,25 @@ fun main() = application {
     ) {
 
         App(window)
+//        test()
     }
 }
 
 
 @Composable
 fun test() {
-    val scope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState()
-
-    Scaffold(scaffoldState = scaffoldState) {
+    Column {
         Button(onClick = {
-            try {
-                val desktopPath = FileSystemView.getFileSystemView().homeDirectory
-                val fileDirectory = File("${desktopPath}/AdbToolBox")
-                if (!fileDirectory.exists()) fileDirectory.mkdir()
-
-                val cacheFile = File("${fileDirectory.path}/cache")
-                if (!cacheFile.exists()) cacheFile.createNewFile()
-
-            } catch (e: Exception) {
-                scope.launch {
-                    scaffoldState.snackbarHostState.showSnackbar("$e")
-                }
-            }
+            CacheUtils.putConfig("A","123123")
         }) {
-            Text("按钮")
+            Text("存储数据")
+        }
+
+        Button(onClick = {
+            val data = CacheUtils.getConfig("A")
+            println("获取的数据${data}")
+        }) {
+            Text("读取数据")
         }
     }
 }

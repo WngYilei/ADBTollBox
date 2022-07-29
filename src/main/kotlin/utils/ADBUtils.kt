@@ -1,5 +1,6 @@
 package utils
 
+import utils.CacheUtils.IP
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.Executors
@@ -10,7 +11,7 @@ object ADBUtils {
 
     fun installApk(path: String, status: (status: String?) -> Unit) {
         status.invoke("apk安装路径:$path")
-        val adbPath = CacheUtils.readAdbPath()
+        val adbPath = CacheUtils.getConfig(CacheUtils.ADB)
         if (adbPath.isEmpty()) {
             status.invoke("安装失败，请先配置Android SDK")
             return
@@ -51,9 +52,15 @@ object ADBUtils {
         executeAdb("shell dumpsys window | grep mCurrentFocus", status)
     }
 
+    fun connectDevices(ip: String, status: (status: String?) -> Unit) {
+        val rootIp = CacheUtils.getConfig(IP)
+        executeAdb("connect ${rootIp + ip}", status)
+
+    }
+
 
     private fun executeAdb(cmd: String, status: (status: String?) -> Unit) {
-        val adbPath = CacheUtils.readAdbPath()
+        val adbPath = CacheUtils.getConfig(CacheUtils.ADB)
         threadPool.execute {
             try {
                 val rt = Runtime.getRuntime()

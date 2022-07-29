@@ -31,7 +31,7 @@ fun App(window: ComposeWindow) {
                 XButton(onClick = {
                     MainApp.navigator.navigate(Screens.ApkScreen)
                 }, isSelect = true, modifier = Modifier.fillMaxWidth()) {
-                    Text("安装apk", style = TextStyle(color = Color.White))
+                    Text("ADB", style = TextStyle(color = Color.White))
                 }
 
                 XButton(
@@ -39,7 +39,7 @@ fun App(window: ComposeWindow) {
                         MainApp.navigator.navigate(Screens.LogScreen)
                     }, modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
                 ) {
-                    Text("日志页面", style = TextStyle(color = Color.White))
+                    Text("敬请期待", style = TextStyle(color = Color.White))
                 }
 
                 XButton(

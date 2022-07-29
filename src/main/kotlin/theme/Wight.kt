@@ -29,7 +29,7 @@ fun XButton(
     val focusRequester = FocusRequester()
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused = interactionSource.collectIsFocusedAsState().value
-    val color = if (isFocused) ButtonColors else ButtonColorsNo
+    var color = if (isFocused) ButtonColors else ButtonColorsNo
 
     Button(
         onClick = {
