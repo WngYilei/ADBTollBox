@@ -1,11 +1,15 @@
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Button
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.launch
@@ -31,20 +35,19 @@ fun main() = application {
 
 @Composable
 fun test() {
-    Column {
-        Button(onClick = {
-            CacheUtils.putConfig("A","123123")
-        }) {
-            Text("存储数据")
-        }
-
-        Button(onClick = {
-            val data = CacheUtils.getConfig("A")
-            println("获取的数据${data}")
-        }) {
-            Text("读取数据")
+    Box(
+        modifier = Modifier.size(50.dp).background(Color.Red, shape = RoundedCornerShape(5.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column {
+            Icon(
+                painterResource("drawable/ic_adb_select_un.png"), null,
+                modifier = Modifier.fillMaxWidth().height(20.dp)
+            )
+            Text("ADB", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
     }
+
 }
 
 
