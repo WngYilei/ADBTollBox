@@ -58,7 +58,7 @@ fun App(window: ComposeWindow) {
             }
 
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.Cyan, shape = RoundedCornerShape(15.dp))
+                modifier = Modifier.fillMaxSize().background(Color.White, shape = RoundedCornerShape(15.dp))
                     .padding(20.dp)
             ) {
 

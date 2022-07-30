@@ -8,10 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import noRippleClickable
+import utils.ADBUtils
 
 
 @Composable
@@ -68,10 +66,43 @@ fun XButton(
                 modifier = Modifier.fillMaxWidth().padding(top = 3.dp),
                 textAlign = TextAlign.Center,
                 color = ITEM_TEXT,
-                style = TextStyle(fontSize = 12.sp)
+                style = TextStyle(fontSize = 10.sp)
             )
         }
     }
+}
+
+@Composable
+fun FunctionItem(backgroundColor: Color, icon: String, text: String, onClick: () -> Unit) {
+
+    Card(elevation = 10.dp, backgroundColor = Color.Transparent, modifier = Modifier.padding(2.dp)) {
+        Box(
+            modifier = Modifier.width(170.dp).height(100.dp)
+                .background(backgroundColor, shape = RoundedCornerShape(10.dp))
+                .noRippleClickable {
+                    onClick()
+                },
+        ) {
+            Column(modifier = Modifier.padding(start = 5.dp)) {
+                Image(
+                    painterResource(icon), null,
+                    modifier = Modifier.size(50.dp).padding(top = 5.dp)
+                )
+                Text(text, modifier = Modifier.padding(start = 10.dp, top = 10.dp))
+            }
+        }
+    }
+}
 
 
+@Composable
+fun FunctionRow(modifier: Modifier, contentStart: @Composable () -> Unit, contentEnd: @Composable () -> Unit) {
+    Row(modifier = modifier) {
+        Box {
+            contentStart()
+        }
+        Box(modifier = Modifier.padding(start = 20.dp)) {
+            contentEnd()
+        }
+    }
 }

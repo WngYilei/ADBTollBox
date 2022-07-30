@@ -27,8 +27,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import noRippleClickable
 import showFileSelector
-import theme.FunctionButton
-import theme.Purple200
+import theme.*
 import utils.ADBUtils
 import utils.CacheUtils
 
@@ -68,112 +67,146 @@ fun ApkScreen(window: ComposeWindow) {
         }
 
     }) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Cyan)) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
             Column(modifier = Modifier.fillMaxSize()) {
-
                 DropBoxPanel(
                     window = window,
                     modifier = Modifier.fillMaxWidth().height(100.dp)
-                        .background(Color.White, shape = RoundedCornerShape(10.dp))
+                        .background(Color2, shape = RoundedCornerShape(10.dp)),
+                    content = {
+                        Box {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Image(
+                                    painterResource("drawable/icon_upload.png"),
+                                    null,
+                                    modifier = Modifier.size(60.dp).padding(top = 10.dp)
+                                )
+                                Text(
+                                    if (apkPath.isNotEmpty()) "APK文件路径:$apkPath" else "拖拽文件到此区域",
+                                    style = TextStyle(fontSize = 12.sp),
+                                    modifier = Modifier.padding(top = 5.dp)
+                                )
+                            }
+                        }
+                    }
                 ) {
                     apkPath = it.first()
                 }
 
-                Row(modifier = Modifier.fillMaxWidth().height(50.dp)) {
 
-                    Button(
-                        onClick = {
-                            val folder = Array(2) { "/User/Desktop" }
-                            showFileSelector(folder) {
-                                apkPath = it
-                            }
-                        },
-
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = FunctionButton,
-                        ),
+                Row(modifier = Modifier.padding(top = 10.dp).fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.width(400.dp).background(color = Color3, shape = RoundedCornerShape(10.dp))
+                            .padding(10.dp)
                     ) {
-                        Text("选择Apk")
-                    }
 
-                    Button(
-                        onClick = {
-                            ADBUtils.lookShowActivityName {
-                                statusList.add(it!!)
+
+                        Row {
+                            var ip by remember { mutableStateOf("") }
+                            Button(onClick = {
+                                if (ip.isEmpty()) {
+                                    scope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar("请先输入IP")
+                                    }
+                                    return@Button
+                                }
+                                ADBUtils.connectDevices(ip) {
+                                    statusList.add(it!!)
+                                }
+                            }, colors = ButtonDefaults.buttonColors(ButtonColors)) {
+                                Text("连接")
                             }
-                        },
-                        modifier = Modifier.padding(start = 10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = FunctionButton,
-                        ),
-                    ) {
-                        Text("查看当前Activity名称")
-                    }
+                            Box(
+                                modifier = Modifier
+                                    .padding(start = 5.dp, top = 5.dp)
+                                    .height(40.dp)
+                                    .width(300.dp)
+                                    .background(FunctionButton, shape = RoundedCornerShape(5.dp))
+                            ) {
+                                BasicTextField(
+                                    value = ip,
+                                    onValueChange = {
+                                        ip = it
+                                    },
+                                    modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp),
+                                    decorationBox = @Composable { innerTextField ->
+                                        if (ip.isEmpty())
+                                            Text(
+                                                text = "请输入IP",
+                                                color = Color.Gray,
+                                                style = TextStyle(fontSize = 12.sp)
+                                            )
+                                        innerTextField()
+                                    }
 
-
-                    Button(
-                        onClick = {
-                            ADBUtils.lookDevices {
-                                statusList.add(it!!)
+                                )
                             }
-                        },
-                        modifier = Modifier.padding(start = 10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = FunctionButton,
-                        ),
-                    ) {
-                        Text("查看设备")
-                    }
+                        }
 
 
-                    Row(modifier = Modifier.padding(start = 10.dp)) {
-                        var ip by remember { mutableStateOf("") }
-                        Button(onClick = {
-                            if (ip.isEmpty()) {
+                        FunctionRow(modifier = Modifier.padding(top = 10.dp), {
+                            FunctionItem(
+                                backgroundColor = Color2,
+                                text = "选择APK",
+                                icon = "drawable/icon_select_file.png"
+                            ) {
+                                val folder = Array(2) { "/User/Desktop" }
+                                showFileSelector(folder) {
+                                    apkPath = it
+                                }
+                            }
+                        }, {
+                            FunctionItem(
+                                backgroundColor = Color3,
+                                text = "查看页面",
+                                icon = "drawable/icon_look_page.png"
+                            ) {
+                                ADBUtils.lookShowActivityName {
+                                    statusList.add(it!!)
+                                }
+                            }
+                        })
+
+
+                        FunctionRow(modifier = Modifier.padding(top = 10.dp), {
+                            FunctionItem(
+                                backgroundColor = Color4,
+                                text = "查看设备",
+                                icon = "drawable/icon_look_devices.png"
+                            ) {
+                                ADBUtils.lookDevices {
+                                    statusList.add(it!!)
+                                }
+                            }
+                        }, {
+                            FunctionItem(
+                                backgroundColor = Color5,
+                                text = "更多功能,敬请期待",
+                                icon = "drawable/ic_exception.png"
+                            ) {
                                 scope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar("请先输入IP")
+                                    scaffoldState.snackbarHostState.showSnackbar("更多功能，敬请期待")
                                 }
-                                return@Button
                             }
-                            ADBUtils.connectDevices(ip) {
-                                statusList.add(it!!)
-                            }
-                        }) {
-                            Text("连接")
-                        }
-                        Box(
-                            modifier = Modifier
-                                .padding(start = 5.dp, top = 5.dp)
-                                .height(40.dp)
-                                .width(300.dp)
-                                .background(FunctionButton, shape = RoundedCornerShape(5.dp))
-                        ) {
-                            BasicTextField(
-                                value = ip,
-                                onValueChange = {
-                                    ip = it
-                                },
-                                modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp),
-                                decorationBox = @Composable { innerTextField ->
-                                    if (ip.isEmpty())
-                                        Text(text = "请输入IP", color = Color.Gray, style = TextStyle(fontSize = 12.sp))
-                                    innerTextField()
-                                }
+                        })
 
-                            )
-                        }
+
                     }
 
-
-
-
-                }
-                Text("apk 路径：${apkPath}")
-                LazyColumn {
-                    itemsIndexed(statusList) { index, item ->
-                        Text(item)
+                    LazyColumn(
+                        modifier = Modifier.width(300.dp).fillMaxHeight().padding(start = 10.dp)
+                            .background(color = Color4, shape = RoundedCornerShape(10.dp))
+                            .padding(start = 5.dp, top = 5.dp)
+                    ) {
+                        itemsIndexed(statusList) { index, item ->
+                            Text(item)
+                        }
                     }
                 }
+
             }
         }
     }

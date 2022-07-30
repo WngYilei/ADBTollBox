@@ -47,6 +47,7 @@ fun DropBoxPanel(
     modifier: Modifier,
     window: ComposeWindow,
     component: JPanel = JPanel(),
+    content: @Composable () -> Unit,
     onFileDrop: (List<String>) -> Unit
 ) {
 
@@ -64,8 +65,7 @@ fun DropBoxPanel(
     }
     ) {
 
-        Text("将apk拖拽到此", modifier = Modifier.padding(10.dp))
-
+        content()
         LaunchedEffect(true) {
             component.setBounds(
                 dropBoundsBean.value.x.roundToInt(),
@@ -156,7 +156,7 @@ inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier
 }
 
 @Composable
-fun EditItem(editStart: String = "", lable: String = "", value: String ="", click: (str: String) -> Unit) {
+fun EditItem(editStart: String = "", lable: String = "", value: String = "", click: (str: String) -> Unit) {
     var isText by remember { mutableStateOf(true) }
     var etPath by remember { mutableStateOf("") }
     var text by remember { mutableStateOf(editStart + value) }
