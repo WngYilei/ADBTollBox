@@ -15,10 +15,9 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "ADB工具箱",
-        resizable = true,
+        resizable = false,
         icon = painterResource("drawable/ic_jetquotes_logo.png")
     ) {
-
         App(window)
 //        test()
     }

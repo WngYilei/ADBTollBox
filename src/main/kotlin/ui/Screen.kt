@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import bean.DropBoundsBean
 import theme.ButtonColors
 import theme.ButtonColorsNo
+import theme.Purple200
 import utils.CacheUtils
 
 import java.awt.datatransfer.DataFlavor
@@ -160,7 +161,9 @@ fun EditItem(editStart: String = "", lable: String = "", value: String = "", cli
     var isText by remember { mutableStateOf(true) }
     var etPath by remember { mutableStateOf("") }
     var text by remember { mutableStateOf(editStart + value) }
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp).background(Purple200, shape = RoundedCornerShape(5.dp))
+    ) {
         if (isText) {
             Text(
                 text,
