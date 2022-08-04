@@ -26,6 +26,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
 
+    implementation("com.1stleg:jnativehook:2.1.0")
 }
 
 tasks.withType<KotlinCompile>() {

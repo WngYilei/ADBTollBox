@@ -87,4 +87,33 @@ object ADBUtils {
             }
         }
     }
+
+     fun execute(cmd: String, status: (status: String?) -> Unit) {
+
+        threadPool.execute {
+            try {
+                val rt = Runtime.getRuntime()
+
+                val proc = rt.exec(cmd)
+
+                val stdInput = BufferedReader(InputStreamReader(proc.inputStream))
+
+                val stdError = BufferedReader(InputStreamReader(proc.errorStream))
+
+
+                var s: String? = null
+                while (stdInput.readLine().also { s = it } != null) {
+                    println(s)
+                    status.invoke(s)
+                }
+                while (stdError.readLine().also { s = it } != null) {
+                    println(s)
+                    status.invoke(s)
+                }
+            } catch (e: Exception) {
+                println(e)
+                status.invoke("发生错误${e}")
+            }
+        }
+    }
 }

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import flowevent.FlowEvent
 import kotlinx.coroutines.launch
 import noRippleClickable
 import showFileSelector
@@ -38,11 +39,9 @@ fun ApkScreen(window: ComposeWindow) {
 
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
-
     var apkPath by remember { mutableStateOf("") }
     val statusList = mutableStateListOf<String>()
     Scaffold(scaffoldState = scaffoldState, floatingActionButton = {
-
         AnimatedVisibility(
             visible = apkPath.isNotEmpty(),
             enter = scaleIn(),
@@ -102,10 +101,14 @@ fun ApkScreen(window: ComposeWindow) {
                         modifier = Modifier.width(400.dp).background(color = Color3, shape = RoundedCornerShape(10.dp))
                             .padding(10.dp)
                     ) {
-
-
                         Row {
                             var ip by remember { mutableStateOf("") }
+                            val event = FlowEvent.event.collectAsState("")
+                            if ("enter" == event.value && ip.isNotEmpty()) {
+                                ADBUtils.connectDevices(ip) {
+                                    statusList.add(it!!)
+                                }
+                            }
                             Button(onClick = {
                                 if (ip.isEmpty()) {
                                     scope.launch {
@@ -128,9 +131,11 @@ fun ApkScreen(window: ComposeWindow) {
                             ) {
                                 BasicTextField(
                                     value = ip,
+                                    singleLine = true,
                                     onValueChange = {
                                         ip = it
                                     },
+
                                     modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp),
                                     decorationBox = @Composable { innerTextField ->
                                         if (ip.isEmpty())
@@ -184,11 +189,15 @@ fun ApkScreen(window: ComposeWindow) {
                         }, {
                             FunctionItem(
                                 backgroundColor = Color5,
-                                text = "更多功能,敬请期待",
+                                text = "scrcpy",
                                 icon = "drawable/ic_exception.png"
                             ) {
-                                scope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar("更多功能，敬请期待")
+//                                scope.launch {
+//                                    scaffoldState.snackbarHostState.showSnackbar("更多功能，敬请期待")
+//                                }
+
+                                ADBUtils.execute("/usr/local/Cellar/scrcpy/1.21/bin/scrcpy") {
+                                    statusList.add(it!!)
                                 }
                             }
                         })

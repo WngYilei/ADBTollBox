@@ -2,10 +2,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
@@ -20,7 +17,10 @@ import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.style.TextAlign
@@ -198,4 +198,68 @@ fun EditItem(editStart: String = "", lable: String = "", value: String = "", cli
         }
 
     }
+}
+
+
+@Composable
+fun ChartView(modifier: Modifier = Modifier, points: List<Float>) {
+    //每一行的高度
+    val heightForRow = 24
+
+    //总行数
+    val countForRow = 5
+
+    //小圆圈半径
+    val circleRadius = 2.5
+
+    //画布宽度
+    val canvasWidth = 100
+    //画布高度
+    val canvasHeight = heightForRow * countForRow + circleRadius * 2
+
+    //没8 dp 代表1积分 每一行 3积分
+    val perY = 8 //24 * 5 /15
+
+    //七平分宽度
+    val averageOfWidth = canvasWidth / 7
+
+
+    Canvas(modifier = modifier.size(width = canvasWidth.dp, canvasHeight.dp), onDraw = {
+        //背景横线
+        for (index in 0..countForRow) {
+            val startY = (index * heightForRow.toFloat() + circleRadius).dp.toPx()
+            val endX = size.width
+            val endY = startY
+            drawLine(
+                Color(0xFFEEEEEE),
+                start = Offset(x = 0f, y = startY),
+                end = Offset(x = endX, y = endY),
+                strokeWidth = 2.5f
+            )
+        }
+
+        //画小圆圈、折线
+        for (index in 0 until points.count()) {
+
+            val centerX = (averageOfWidth * index + averageOfWidth / 2).dp.toPx()
+            val centerY =
+                (heightForRow * countForRow - points[index] * perY + circleRadius).dp.toPx()
+            val circleCenter = Offset(centerX, centerY)
+            //点
+            drawCircle(
+                Color(0xff149ee7), radius = circleRadius.dp.toPx(),
+                center = circleCenter,
+                style = Stroke(width = 5f)
+            )
+            //线
+            if (index < points.count() - 1) {
+                val nextPointOffsetX = (averageOfWidth * (index + 1) + averageOfWidth / 2).dp.toPx()
+                val nextPointOffsetY =
+                    (heightForRow * countForRow - points[(index + 1)] * perY + circleRadius).dp.toPx()
+                val nextPoint = Offset(nextPointOffsetX, nextPointOffsetY)
+                drawLine(Color(0xFF149EE7), start = circleCenter, end = nextPoint, strokeWidth = 5f)
+            }
+
+        }
+    })
 }

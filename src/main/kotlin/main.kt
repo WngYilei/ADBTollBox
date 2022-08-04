@@ -1,5 +1,7 @@
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -9,6 +11,7 @@ import theme.Color2
 import theme.Color3
 import theme.FunctionItem
 import utils.MainApp
+import java.util.*
 
 fun main() = application {
     MainApp.init()
@@ -26,17 +29,14 @@ fun main() = application {
 
 @Composable
 fun test() {
-    Row(modifier = Modifier.padding(10.dp)) {
-        Box {
-            FunctionItem(backgroundColor = Color2, text = "选择APK", icon = "drawable/icon_select_file.png") {
+    val pointsOfWeek by mutableStateOf(mutableStateListOf(3f, 2f, 6f, 9.3f, 10f, 15f, 8f))
+    ChartView(modifier = Modifier, pointsOfWeek)
 
-            }
-        }
-        Box(modifier = Modifier.padding(start = 20.dp)) {
-            FunctionItem(backgroundColor = Color3, text = "查看页面", icon = "drawable/icon_select_file.png") {
-
-            }
-        }
+    Button(onClick = {
+        if (pointsOfWeek.size > 10) pointsOfWeek.removeFirst()
+        pointsOfWeek.add(Random().nextFloat())
+    }) {
+        Text("增加")
     }
 }
 
