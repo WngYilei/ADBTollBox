@@ -24,8 +24,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sun.tools.javac.Main
 import flowevent.FlowEvent
 import kotlinx.coroutines.launch
+import model.Event
+import model.MainViewModel
 import noRippleClickable
 import showFileSelector
 import theme.*
@@ -41,14 +44,15 @@ fun ApkScreen(window: ComposeWindow) {
     val scaffoldState = rememberScaffoldState()
     var apkPath by remember { mutableStateOf("") }
     val statusList = mutableStateListOf<String>()
+
+    val state = MainViewModel.state.collectAsState()
+    statusList.add(state.value)
+
     Scaffold(scaffoldState = scaffoldState, floatingActionButton = {
         AnimatedVisibility(
-            visible = apkPath.isNotEmpty(),
-            enter = scaleIn(),
-            exit = scaleOut()
+            visible = apkPath.isNotEmpty(), enter = scaleIn(), exit = scaleOut()
         ) {
-            Image(
-                painter = painterResource("drawable/start.png"),
+            Image(painter = painterResource("drawable/start.png"),
                 "",
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.noRippleClickable {
@@ -61,15 +65,13 @@ fun ApkScreen(window: ComposeWindow) {
                     ADBUtils.installApk(apkPath) {
                         statusList.add(it!!)
                     }
-                }
-            )
+                })
         }
 
     }) {
         Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
             Column(modifier = Modifier.fillMaxSize()) {
-                DropBoxPanel(
-                    window = window,
+                DropBoxPanel(window = window,
                     modifier = Modifier.fillMaxWidth().height(100.dp)
                         .background(Color2, shape = RoundedCornerShape(10.dp)),
                     content = {
@@ -90,24 +92,21 @@ fun ApkScreen(window: ComposeWindow) {
                                 )
                             }
                         }
-                    }
-                ) {
+                    }) {
                     apkPath = it.first()
                 }
 
-
                 Row(modifier = Modifier.padding(top = 10.dp).fillMaxWidth()) {
                     Column(
-                        modifier = Modifier.width(400.dp).background(color = Color3, shape = RoundedCornerShape(10.dp))
+                        modifier = Modifier.width(400.dp)
+                            .background(color = Color3, shape = RoundedCornerShape(10.dp))
                             .padding(10.dp)
                     ) {
                         Row {
                             var ip by remember { mutableStateOf("") }
                             val event = FlowEvent.event.collectAsState("")
                             if ("enter" == event.value && ip.isNotEmpty()) {
-                                ADBUtils.connectDevices(ip) {
-                                    statusList.add(it!!)
-                                }
+                                MainViewModel.sendAction(Event.Connect(string = ip))
                             }
                             Button(onClick = {
                                 if (ip.isEmpty()) {
@@ -116,34 +115,29 @@ fun ApkScreen(window: ComposeWindow) {
                                     }
                                     return@Button
                                 }
-                                ADBUtils.connectDevices(ip) {
-                                    statusList.add(it!!)
-                                }
+                                MainViewModel.sendAction(Event.Connect(string = ip))
                             }, colors = ButtonDefaults.buttonColors(ButtonColors)) {
                                 Text("连接")
                             }
                             Box(
-                                modifier = Modifier
-                                    .padding(start = 5.dp, top = 5.dp)
-                                    .height(40.dp)
+                                modifier = Modifier.padding(start = 5.dp, top = 5.dp).height(40.dp)
                                     .width(300.dp)
                                     .background(FunctionButton, shape = RoundedCornerShape(5.dp))
                             ) {
-                                BasicTextField(
-                                    value = ip,
+                                BasicTextField(value = ip,
                                     singleLine = true,
                                     onValueChange = {
                                         ip = it
                                     },
 
-                                    modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp),
+                                    modifier = Modifier.fillMaxSize()
+                                        .padding(start = 10.dp, top = 10.dp),
                                     decorationBox = @Composable { innerTextField ->
-                                        if (ip.isEmpty())
-                                            Text(
-                                                text = "请输入IP",
-                                                color = Color.Gray,
-                                                style = TextStyle(fontSize = 12.sp)
-                                            )
+                                        if (ip.isEmpty()) Text(
+                                            text = "请输入IP",
+                                            color = Color.Gray,
+                                            style = TextStyle(fontSize = 12.sp)
+                                        )
                                         innerTextField()
                                     }
 
@@ -169,9 +163,7 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "查看页面",
                                 icon = "drawable/icon_look_page.png"
                             ) {
-                                ADBUtils.lookShowActivityName {
-                                    statusList.add(it!!)
-                                }
+                               MainViewModel.sendAction(Event.LookPage)
                             }
                         })
 
@@ -182,9 +174,7 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "查看设备",
                                 icon = "drawable/icon_look_devices.png"
                             ) {
-                                ADBUtils.lookDevices {
-                                    statusList.add(it!!)
-                                }
+                              MainViewModel.sendAction(Event.LookDevices)
                             }
                         }, {
                             FunctionItem(
@@ -192,12 +182,8 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "scrcpy",
                                 icon = "drawable/ic_exception.png"
                             ) {
-//                                scope.launch {
-//                                    scaffoldState.snackbarHostState.showSnackbar("更多功能，敬请期待")
-//                                }
-
-                                ADBUtils.execute("/usr/local/Cellar/scrcpy/1.21/bin/scrcpy") {
-                                    statusList.add(it!!)
+                                scope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("更多功能，敬请期待")
                                 }
                             }
                         })
@@ -208,10 +194,10 @@ fun ApkScreen(window: ComposeWindow) {
                     LazyColumn(
                         modifier = Modifier.width(300.dp).fillMaxHeight().padding(start = 10.dp)
                             .background(color = Color4, shape = RoundedCornerShape(10.dp))
-                            .padding(start = 5.dp, top = 5.dp)
+                            .padding(start = 10.dp, top = 5.dp)
                     ) {
                         itemsIndexed(statusList) { index, item ->
-                            Text(item)
+                            Text(item, style = TextStyle(fontSize = 13.sp))
                         }
                     }
                 }
