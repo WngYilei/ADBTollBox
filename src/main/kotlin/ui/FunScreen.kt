@@ -29,6 +29,7 @@ import flowevent.FlowEvent
 import kotlinx.coroutines.launch
 import model.Event
 import model.MainViewModel
+import model.State
 import noRippleClickable
 import showFileSelector
 import theme.*
@@ -40,13 +41,23 @@ import utils.CacheUtils
 @Composable
 fun ApkScreen(window: ComposeWindow) {
 
+
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     var apkPath by remember { mutableStateOf("") }
     val statusList = mutableStateListOf<String>()
 
-    val state = MainViewModel.state.collectAsState()
-    statusList.add(state.value)
+    val state = MainViewModel.state.collectAsState().value
+    when (state) {
+        is State.Idle -> {}
+        is State.Result -> statusList.add(state.msg)
+        is State.Show -> {
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar("请先选择Apk")
+            }
+        }
+    }
+
 
     Scaffold(scaffoldState = scaffoldState, floatingActionButton = {
         AnimatedVisibility(
@@ -57,9 +68,7 @@ fun ApkScreen(window: ComposeWindow) {
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.noRippleClickable {
                     if (apkPath.isEmpty()) {
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("请先选择Apk")
-                        }
+                        MainViewModel.sendAction(Event.Show("请先选择Apk"))
                         return@noRippleClickable
                     }
                     ADBUtils.installApk(apkPath) {
@@ -110,9 +119,7 @@ fun ApkScreen(window: ComposeWindow) {
                             }
                             Button(onClick = {
                                 if (ip.isEmpty()) {
-                                    scope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar("请先输入IP")
-                                    }
+                                    MainViewModel.sendAction(Event.Show("请先输入IP"))
                                     return@Button
                                 }
                                 MainViewModel.sendAction(Event.Connect(string = ip))
@@ -163,7 +170,7 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "查看页面",
                                 icon = "drawable/icon_look_page.png"
                             ) {
-                               MainViewModel.sendAction(Event.LookPage)
+                                MainViewModel.sendAction(Event.LookPage)
                             }
                         })
 
@@ -174,7 +181,7 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "查看设备",
                                 icon = "drawable/icon_look_devices.png"
                             ) {
-                              MainViewModel.sendAction(Event.LookDevices)
+                                MainViewModel.sendAction(Event.LookDevices)
                             }
                         }, {
                             FunctionItem(
@@ -182,13 +189,9 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "scrcpy",
                                 icon = "drawable/ic_exception.png"
                             ) {
-                                scope.launch {
-                                    scaffoldState.snackbarHostState.showSnackbar("更多功能，敬请期待")
-                                }
+                                MainViewModel.sendAction(Event.Show("更多功能，敬请期待"))
                             }
                         })
-
-
                     }
 
                     LazyColumn(
@@ -244,8 +247,6 @@ fun SettingScreen() {
             println(it)
             CacheUtils.putConfig(CacheUtils.IP, it)
         }
-
-
     }
 }
 

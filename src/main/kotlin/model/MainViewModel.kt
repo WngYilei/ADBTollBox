@@ -1,6 +1,5 @@
 package model
 
-import androidx.compose.foundation.layout.PaddingValues
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
@@ -11,7 +10,12 @@ import utils.ADBUtils
  * @Date : 2022/8/11
  * Desc :
  */
-data class State(val connect: String? = "")
+sealed class State {
+    object Idle : State()
+    data class Show(var msg: String) : State()
+    data class Result(var msg: String) : State()
+}
+
 sealed class Event {
     object Idle : Event()
     data class Show(var msg: String) : Event()
@@ -27,14 +31,15 @@ object MainViewModel : ReduxViewModel() {
             pendingActions.consumeAsFlow().collect {
                 when (it) {
                     is Event.Idle -> {}
+                    is Event.Show -> show(it.msg)
                     is Event.Connect -> connect(it.string)
                     is Event.LookPage -> lookPage()
                     is Event.LookDevices -> lookDevices()
-                    else -> {}
                 }
             }
         }
     }
+
 
     fun sendAction(event: Event) {
         workScope.launch {
@@ -43,21 +48,26 @@ object MainViewModel : ReduxViewModel() {
     }
 
 
+    private fun show(msg: String) {
+        setState(State.Show(msg))
+    }
+
+
     private fun connect(ip: String) {
         ADBUtils.connectDevices(ip) {
-            setState(it!!)
+            setState(State.Show(msg = it!!))
         }
     }
 
     private fun lookPage() {
         ADBUtils.lookShowActivityName {
-            setState(it!!)
+            setState(State.Show(msg = it!!))
         }
     }
 
     private fun lookDevices() {
         ADBUtils.lookDevices {
-            setState(it!!)
+            setState(State.Show(msg = it!!))
         }
     }
 

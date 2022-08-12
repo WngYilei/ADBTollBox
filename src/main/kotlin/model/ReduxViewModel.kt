@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
  * Desc :
  */
 open class ReduxViewModel {
-    protected val _state = MutableStateFlow("")
-    val state: StateFlow<String>
+    protected val _state = MutableStateFlow<State>(State.Idle)
+    val state: StateFlow<State>
         get() = _state
 
     protected val pendingActions = Channel<Event>(Channel.BUFFERED)
@@ -23,9 +23,9 @@ open class ReduxViewModel {
     private val viewModelJob = SupervisorJob()
     protected val workScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    protected fun setState(str: String) {
+    protected fun setState(state: State) {
         workScope.launch {
-            _state.emit(str)
+            _state.emit(state)
         }
     }
 }
