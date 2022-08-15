@@ -24,7 +24,7 @@ sealed class Event {
     object LookDevices : Event()
 }
 
-object MainViewModel : ReduxViewModel() {
+class MainViewModel : ReduxViewModel() {
 
     init {
         workScope.launch {

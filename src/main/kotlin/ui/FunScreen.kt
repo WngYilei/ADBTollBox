@@ -43,14 +43,12 @@ fun ApkScreen(window: ComposeWindow) {
     val scaffoldState = rememberScaffoldState()
     var apkPath by remember { mutableStateOf("") }
     val statusList = mutableStateListOf<String>()
-
-    val state = MainViewModel.state.collectAsState()
+    val viewModel by lazy { MainViewModel() }
+    val state = viewModel.state.collectAsState()
     state.value.let {
         when (it) {
             is State.Idle -> {}
-            is State.Result -> {
-
-            }
+            is State.Result -> {}
             is State.Show -> {
                 scope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(it.msg)
@@ -58,8 +56,6 @@ fun ApkScreen(window: ComposeWindow) {
             }
         }
     }
-
-
 
     Scaffold(scaffoldState = scaffoldState, floatingActionButton = {
         AnimatedVisibility(
@@ -70,7 +66,7 @@ fun ApkScreen(window: ComposeWindow) {
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.noRippleClickable {
                     if (apkPath.isEmpty()) {
-                        MainViewModel.sendAction(Event.Show("请先选择Apk"))
+                        viewModel.sendAction(Event.Show("请先选择Apk"))
                         return@noRippleClickable
                     }
                     ADBUtils.installApk(apkPath) {
@@ -117,14 +113,14 @@ fun ApkScreen(window: ComposeWindow) {
                             var ip by remember { mutableStateOf("") }
                             val event = FlowEvent.event.collectAsState("")
                             if ("enter" == event.value && ip.isNotEmpty()) {
-                                MainViewModel.sendAction(Event.Connect(string = ip))
+                                viewModel.sendAction(Event.Connect(string = ip))
                             }
                             Button(onClick = {
                                 if (ip.isEmpty()) {
-                                    MainViewModel.sendAction(Event.Show("请先输入IP"))
+                                    viewModel.sendAction(Event.Show("请先输入IP"))
                                     return@Button
                                 }
-                                MainViewModel.sendAction(Event.Connect(string = ip))
+                                viewModel.sendAction(Event.Connect(string = ip))
                             }, colors = ButtonDefaults.buttonColors(ButtonColors)) {
                                 Text("连接")
                             }
@@ -199,7 +195,7 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "敬请期待",
                                 icon = "drawable/ic_exception.png"
                             ) {
-                                MainViewModel.sendAction(Event.Show("更多功能，敬请期待"))
+                                viewModel.sendAction(Event.Show("更多功能，敬请期待"))
                             }
                         })
                     }

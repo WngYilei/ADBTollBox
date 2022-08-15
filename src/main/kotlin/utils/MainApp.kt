@@ -14,7 +14,7 @@ object MainApp {
 
     fun init() {
         CacheUtils.init()
-//        GlobalScreen.registerNativeHook()
+        GlobalScreen.registerNativeHook()
         GlobalScreen.addNativeKeyListener(object : NativeKeyListener {
             override fun nativeKeyTyped(p0: NativeKeyEvent?) {
 
