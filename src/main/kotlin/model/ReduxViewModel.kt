@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  * Desc :
  */
 open class ReduxViewModel {
-    protected val _state = MutableStateFlow<State>(State.Idle)
+    private val _state = MutableStateFlow<State>(State.Idle)
     val state: StateFlow<State>
         get() = _state
 

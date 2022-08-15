@@ -55,19 +55,25 @@ object MainViewModel : ReduxViewModel() {
 
     private fun connect(ip: String) {
         ADBUtils.connectDevices(ip) {
-            setState(State.Show(msg = it!!))
+            it?.let {
+                setState(State.Result(msg = it))
+            }
         }
     }
 
     private fun lookPage() {
         ADBUtils.lookShowActivityName {
-            setState(State.Show(msg = it!!))
+            it?.let {
+                setState(State.Result(msg = it))
+            }
         }
     }
 
     private fun lookDevices() {
         ADBUtils.lookDevices {
-            setState(State.Show(msg = it!!))
+            it?.let {
+                setState(State.Result(msg = it))
+            }
         }
     }
 

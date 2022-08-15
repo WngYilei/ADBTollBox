@@ -24,7 +24,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sun.tools.javac.Main
 import flowevent.FlowEvent
 import kotlinx.coroutines.launch
 import model.Event
@@ -40,23 +39,26 @@ import utils.CacheUtils
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ApkScreen(window: ComposeWindow) {
-
-
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     var apkPath by remember { mutableStateOf("") }
     val statusList = mutableStateListOf<String>()
 
-    val state = MainViewModel.state.collectAsState().value
-    when (state) {
-        is State.Idle -> {}
-        is State.Result -> statusList.add(state.msg)
-        is State.Show -> {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar("请先选择Apk")
+    val state = MainViewModel.state.collectAsState()
+    state.value.let {
+        when (it) {
+            is State.Idle -> {}
+            is State.Result -> {
+
+            }
+            is State.Show -> {
+                scope.launch {
+                    scaffoldState.snackbarHostState.showSnackbar(it.msg)
+                }
             }
         }
     }
+
 
 
     Scaffold(scaffoldState = scaffoldState, floatingActionButton = {
@@ -170,7 +172,11 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "查看页面",
                                 icon = "drawable/icon_look_page.png"
                             ) {
-                                MainViewModel.sendAction(Event.LookPage)
+                                ADBUtils.lookShowActivityName {
+                                    it?.let {
+                                        statusList.add(it)
+                                    }
+                                }
                             }
                         })
 
@@ -181,18 +187,23 @@ fun ApkScreen(window: ComposeWindow) {
                                 text = "查看设备",
                                 icon = "drawable/icon_look_devices.png"
                             ) {
-                                MainViewModel.sendAction(Event.LookDevices)
+                                ADBUtils.lookDevices {
+                                    it?.let {
+                                       statusList.add(it)
+                                    }
+                                }
                             }
                         }, {
                             FunctionItem(
                                 backgroundColor = Color5,
-                                text = "scrcpy",
+                                text = "敬请期待",
                                 icon = "drawable/ic_exception.png"
                             ) {
                                 MainViewModel.sendAction(Event.Show("更多功能，敬请期待"))
                             }
                         })
                     }
+
 
                     LazyColumn(
                         modifier = Modifier.width(300.dp).fillMaxHeight().padding(start = 10.dp)

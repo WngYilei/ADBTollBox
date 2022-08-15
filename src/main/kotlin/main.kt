@@ -2,7 +2,10 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import utils.MainApp
@@ -14,7 +17,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "iBox",
         resizable = false,
-        icon = painterResource("drawable/ic_exception.png"),
+        icon = BitmapPainter(useResource("drawable/ic_jetquotes_logo.png", ::loadImageBitmap)),
     ) {
         App(window)
 //        test()

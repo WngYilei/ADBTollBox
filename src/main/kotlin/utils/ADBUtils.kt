@@ -8,9 +8,6 @@ import java.util.concurrent.Executors
 
 object ADBUtils {
     private val threadPool = Executors.newSingleThreadExecutor()
-
-    fun getPath(): String = CacheUtils.getConfig(CacheUtils.ADB)
-
     fun installApk(path: String, status: (status: String?) -> Unit) {
         status.invoke("apk安装路径:$path")
         val adbPath = CacheUtils.getConfig(CacheUtils.ADB)
@@ -76,7 +73,6 @@ object ADBUtils {
 
                 var s: String? = null
                 while (stdInput.readLine().also { s = it } != null) {
-                    println(s)
                     status.invoke(s)
                 }
                 while (stdError.readLine().also { s = it } != null) {
